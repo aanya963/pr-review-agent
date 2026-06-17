@@ -18,7 +18,8 @@ The system automatically analyzes a GitHub repository, understands its architect
 * Review Aggregation
 * Repository Analysis Caching
 * URL Parsing and Repository Detection
-
+![alt text](image.png)
+![alt text](image-1.png)
 ---
 
 ## Architecture
@@ -119,10 +120,6 @@ python main.py
 
 ---
 
-## Author
-
-Aanya.
-
 
 ```mermaid
 flowchart TD
@@ -157,3 +154,4 @@ M --> N[Review Aggregator]
 
 N --> O[Final Review Report]
 ```
+
