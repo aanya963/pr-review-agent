@@ -8,3 +8,11 @@ repos/
 .DS_Store
 
 .vscode/
+cache/
+
+__pycache__/
+*.pyc
+.env
+repos/
+venv/
+repos/
