@@ -7,7 +7,7 @@ class RepoScanner:
         "README.md",
         "requirements.txt",
         "pyproject.toml",
-        "package.json",
+        # "package.json",
         "Dockerfile",
         "pom.xml"
     ]

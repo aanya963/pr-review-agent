@@ -6,7 +6,7 @@ from tools.code_explorer import CodeExplorer
 from tools.git_tool import GitTool
 from tools.repo_scanner import RepoScanner
 from tools.readme_reader import ReadmeReader
-from services.repo_analyzer import RepoAnalyzer
+# from services.repo_analyzer import RepoAnalyzer
 
 
 class RepositoryAgent(BaseAgent):

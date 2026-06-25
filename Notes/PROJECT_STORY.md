@@ -14,15 +14,12 @@ I wanted to build an AI-powered system that:
 * Generates meaningful review feedback
 
 This project helped me learn:
-
 * Agentic AI systems
 * LangGraph orchestration
 * Tool Calling
 * GitHub API integration
 * Repository analysis
 * Multi-step AI workflows
-
----
 
 ## Problem Statement
 
@@ -104,12 +101,11 @@ Real AI systems require:
 * State management
 * Caching
 
----
 
-## Future Improvements
+<!-- ## Future Improvements
 
 * Parallel review execution
 * GitHub PR comments
 * Security review agent
 * Test coverage analysis
-* CI/CD integration
+* CI/CD integration -->

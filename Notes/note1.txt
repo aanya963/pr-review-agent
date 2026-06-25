@@ -1,0 +1,728 @@
+For an interview or team presentation, don't start with code.
+
+Start with the **problem**, then the **solution**, then the **architecture**, and only then dive into files.
+
+---
+
+# 1. 30-Second Elevator Pitch
+
+> I built an AI-powered Pull Request Review System using LangGraph and LLMs.
+>
+> The system automatically analyzes a GitHub repository, understands its architecture, fetches PR changes, reviews each changed file using an LLM, and generates a consolidated code review report.
+>
+> Instead of reviewing code blindly, the AI first learns the repository context and then reviews the PR with awareness of the project's architecture and design patterns.
+
+---
+
+# 2. Why I Built This
+
+Every team faces these problems:
+
+* PR reviews take time
+* Senior developers are busy
+* New developers may miss architectural issues
+* Existing AI code reviewers don't understand project context
+
+Most AI tools only see:
+
+```python
+old code
+→
+new code
+```
+
+They don't know:
+
+* What this repository does
+* Existing architecture
+* Design decisions
+* Folder structure
+
+So I thought:
+
+> What if the AI first studies the repository and then reviews the PR?
+
+That became this project.
+
+---
+
+# 3. High-Level Flow
+
+Open your architecture diagram and explain:
+
+```
+GitHub PR URL
+       ↓
+Parse URL
+       ↓
+LangGraph Workflow
+       ↓
+Repository Analysis
+       ↓
+PR Files Fetch
+       ↓
+File Reviews
+       ↓
+Review Aggregation
+       ↓
+Final PR Report
+```
+
+---
+
+# 4. Why LangGraph?
+
+This is usually the first interview question.
+
+Answer:
+
+> I could have written everything in one Python script, but I wanted a workflow-oriented architecture.
+>
+> LangGraph allows me to model the review process as a graph of nodes.
+>
+> Each node performs one responsibility and passes state to the next node.
+>
+> This makes the system modular, scalable, and easy to extend.
+
+---
+
+# 5. Explain StateGraph
+
+Draw:
+
+```text
+START
+  |
+  v
+repository_analysis
+  |
+  v
+fetch_pr
+  |
+  v
+review_files
+  |
+  v
+aggregate
+  |
+  v
+END
+```
+
+Explain:
+
+> LangGraph maintains a shared state object.
+>
+> Every node reads from the state, updates it, and passes it forward.
+
+The state contains:
+
+```python
+owner
+repo
+pr_number
+
+repo_summary
+
+files
+reviews
+
+final_report
+```
+
+---
+
+# 6. Walk Through main.py
+
+Show:
+
+```python
+pr_url = ...
+```
+
+Explain:
+
+> User provides a GitHub Pull Request URL.
+
+---
+
+```python
+owner, repo, pr_number =
+parse_pr_url(pr_url)
+```
+
+Explain:
+
+> We extract:
+>
+> * Repository owner
+> * Repository name
+> * Pull Request number
+
+Example:
+
+```text
+https://github.com/langchain-ai/langgraph/pull/8093
+
+owner = langchain-ai
+repo = langgraph
+pr = 8093
+```
+
+---
+
+Then:
+
+```python
+app.invoke(...)
+```
+
+Explain:
+
+> This starts the LangGraph workflow.
+>
+> The state object is passed into the graph and moves through all nodes.
+
+---
+
+# 7. Node 1 — Repository Analysis
+
+Point at diagram.
+
+Say:
+
+> Before reviewing code changes, the system first understands the repository.
+
+Flow:
+
+```text
+RepositoryAgent
+     ↓
+Git Clone
+     ↓
+Repo Scan
+     ↓
+Read README
+     ↓
+Extract Code Samples
+     ↓
+LLM Analysis
+```
+
+---
+
+# 8. RepositoryAgent
+
+Open:
+
+```python
+repository_agent.py
+```
+
+Say:
+
+> RepositoryAgent is responsible for understanding the repository.
+
+---
+
+## Step 1
+
+```python
+GitTool.clone_repository()
+```
+
+Explain:
+
+> We clone the repository locally so the system can inspect its contents.
+
+Library:
+
+```python
+GitPython
+```
+
+---
+
+## Step 2
+
+```python
+RepoScanner.scan_repository()
+```
+
+Explain:
+
+> We scan folders and files to understand project structure.
+
+Example:
+
+```text
+src/
+tests/
+docs/
+api/
+```
+
+---
+
+## Step 3
+
+```python
+ReadmeReader.read()
+```
+
+Explain:
+
+> README files contain valuable context about the project's purpose and architecture.
+
+---
+
+## Step 4
+
+```python
+CodeExplorer.get_code_samples()
+```
+
+Explain:
+
+> We extract representative code samples from the repository.
+
+Purpose:
+
+> Gives the LLM actual implementation examples.
+
+---
+
+## Step 5
+
+```python
+ArchitectureAnalyzer.analyze()
+```
+
+Explain:
+
+> We send:
+>
+> * repository structure
+> * README
+> * code samples
+>
+> to the LLM.
+
+The LLM generates:
+
+```text
+Project Purpose
+Tech Stack
+Architecture
+Design Patterns
+Challenges
+```
+
+---
+
+# 9. Cache Layer
+
+Show:
+
+```python
+CacheService
+```
+
+Explain:
+
+> Repository analysis is expensive.
+>
+> Instead of re-analyzing every time, we cache the result.
+
+Example:
+
+```text
+langchain-ai_langgraph.txt
+```
+
+Next time:
+
+```text
+Cache Hit
+```
+
+No LLM call needed.
+
+---
+
+# 10. Node 2 — Fetch PR
+
+Show:
+
+```python
+fetch_pr_node()
+```
+
+Explain:
+
+> Now that we understand the repository, we fetch the Pull Request changes.
+
+---
+
+Uses:
+
+```python
+GitHubTool
+```
+
+Library:
+
+```python
+PyGithub
+```
+
+---
+
+Calls:
+
+```python
+pr.get_files()
+```
+
+Returns:
+
+```python
+filename
+status
+changes
+patch
+```
+
+Example:
+
+```python
+{
+ "filename":"delta.py",
+ "changes":4,
+ "patch":"..."
+}
+```
+
+---
+
+# 11. Why Patch?
+
+Interview question.
+
+Answer:
+
+> Reviewing the entire file is expensive.
+>
+> GitHub provides only the changed lines through patches.
+>
+> So the LLM reviews only the code that changed.
+
+Huge token savings.
+
+---
+
+# 12. Node 3 — Review Files
+
+This is the most important node.
+
+---
+
+Show:
+
+```python
+review_files_node()
+```
+
+---
+
+Explain:
+
+For every changed file:
+
+```python
+for file in files:
+```
+
+we call:
+
+```python
+PRReviewer.review_file()
+```
+
+---
+
+Input:
+
+```python
+filename
+patch
+repo_summary
+```
+
+Notice:
+
+```text
+repo_summary
+```
+
+This is the secret sauce.
+
+---
+
+Instead of:
+
+```text
+Review this diff
+```
+
+We say:
+
+```text
+Repository Context:
+...
+
+File:
+...
+
+Diff:
+...
+```
+
+Now the model understands:
+
+* architecture
+* purpose
+* patterns
+* context
+
+before reviewing.
+
+---
+
+# 13. LLM Call
+
+Show:
+
+```python
+Groq
+```
+
+Model:
+
+```python
+llama-3.3-70b-versatile
+```
+
+---
+
+Prompt asks for:
+
+```text
+Bugs
+Architecture Impact
+Regression Risks
+Performance Issues
+```
+
+---
+
+Result:
+
+```python
+review
+```
+
+stored in:
+
+```python
+reviews[]
+```
+
+---
+
+# 14. Node 4 — Aggregate
+
+Show:
+
+```python
+aggregate_node()
+```
+
+---
+
+Input:
+
+```python
+all file reviews
+```
+
+---
+
+Output:
+
+```text
+Executive Summary
+
+Top Issues
+
+Risk Level
+
+Recommendation
+```
+
+---
+
+This is what the user finally sees.
+
+---
+
+# 15. Why This Is Better Than One LLM Call
+
+Interviewer will ask this.
+
+Answer:
+
+### Bad Approach
+
+```text
+Entire Repo
++
+Entire PR
++
+Review
+```
+
+Problems:
+
+* huge tokens
+* expensive
+* poor reasoning
+
+---
+
+### My Approach
+
+Step 1:
+
+```text
+Understand Repository
+```
+
+Step 2:
+
+```text
+Review Files
+```
+
+Step 3:
+
+```text
+Aggregate Findings
+```
+
+Advantages:
+
+* modular
+* cheaper
+* scalable
+* easier to maintain
+
+---
+
+# 16. Is This Multi-Agent?
+
+Current answer:
+
+### Technically
+
+No.
+
+This is primarily a:
+
+```text
+LangGraph Workflow
+```
+
+with one real agent:
+
+```python
+RepositoryAgent
+```
+
+and multiple service nodes.
+
+---
+
+### How To Say It
+
+> The current implementation is a workflow-based AI system built using LangGraph.
+>
+> It contains one specialized Repository Agent and several review services.
+>
+> The architecture can be extended into a full multi-agent system by introducing dedicated agents for repository understanding, code review, security review, and report generation.
+
+That's a strong answer.
+
+---
+
+# 17. Future Enhancements
+
+End with this slide.
+
+### Phase 1 (Current)
+
+✅ Repository Understanding
+✅ PR Review
+✅ Review Aggregation
+
+---
+
+### Phase 2
+
+Security Agent
+
+```text
+SQL Injection
+Secrets
+Auth Issues
+```
+
+---
+
+Performance Agent
+
+```text
+Memory
+CPU
+Complexity
+```
+
+---
+
+Testing Agent
+
+```text
+Coverage
+Missing Tests
+Regression Risk
+```
+
+---
+
+### Phase 3
+
+GitHub Integration
+
+When PR is created:
+
+```text
+GitHub Action
+     ↓
+Agent Runs
+     ↓
+Review Generated
+     ↓
+Comment Posted Automatically
+```
+
+This is exactly how you'd position it if presenting to your team as a production-ready roadmap.

@@ -28,23 +28,23 @@ class ReviewAggregator:
             )
 
         prompt = f"""
-You are a Principal Software Engineer.
+            You are a Principal Software Engineer.
 
-Below are code review findings for individual files.
+            Below are code review findings for individual files.
 
-Create ONE concise PR review.
+            Create ONE concise PR review.
 
-Include:
+            Include:
 
-1. Executive Summary
-2. Top Issues
-3. Risk Level (Low/Medium/High)
-4. Recommendation
+            1. Executive Summary
+            2. Top Issues
+            3. Risk Level (Low/Medium/High)
+            4. Recommendation
 
-Reviews:
+            Reviews:
 
-{all_reviews}
-"""
+            {all_reviews}
+        """
 
         response = self.client.chat.completions.create(
             model="llama-3.3-70b-versatile",
