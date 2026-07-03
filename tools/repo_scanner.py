@@ -5,11 +5,11 @@ class RepoScanner:
 
     IMPORTANT_FILES = [
         "README.md",
-        "requirements.txt",
-        "pyproject.toml",
-        # "package.json",
         "Dockerfile",
-        "pom.xml"
+        "*.sln",
+        "*.csproj",
+        "Program.cs",
+        "appsettings.json"
     ]
 
     @staticmethod
@@ -51,5 +51,14 @@ class RepoScanner:
 
         if (repo / "Dockerfile").exists():
             result["detected_tech"].append("Docker")
+            
+        if any(repo.glob("*.sln")):
+            result["detected_tech"].append(".NET Solution")
+
+        if any(repo.rglob("*.csproj")):
+            result["detected_tech"].append("ASP.NET Core")
+
+        if any(repo.rglob("Program.cs")):
+            result["detected_tech"].append("ASP.NET Startup")
 
         return result

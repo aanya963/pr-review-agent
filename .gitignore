@@ -2,6 +2,9 @@ venv/
 __pycache__/
 .env
 
+package.json
+package-lock.json
+
 repos/
 
 *.pyc

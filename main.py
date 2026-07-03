@@ -2,7 +2,7 @@ from graphs.pr_review_graph import app
 # import LangGraph workflow, URL parser
 from utils.url_parser import parse_pr_url
 
-pr_url = "https://github.com/langchain-ai/langgraph/pull/8093"
+pr_url = "https://github.com/dotnet/project-system/pull/9612"
 
 #extract the owner, repo, pr_number
 owner, repo, pr_number = parse_pr_url(pr_url)

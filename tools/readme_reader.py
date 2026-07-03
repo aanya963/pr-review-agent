@@ -11,7 +11,9 @@ class ReadmeReader:
         if not readme_path.exists():
             return ""
 
-        return readme_path.read_text(
+        content = readme_path.read_text(
             encoding="utf-8",
             errors="ignore"
-        )[:8000]
+        )
+
+        return content[:2000]

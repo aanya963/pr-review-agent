@@ -15,33 +15,48 @@ class ArchitectureAnalyzer:
 
     @staticmethod
     def analyze(
-        scan_result,
-        readme_content,
-        code_samples
+    scan_result,
+        readme,
+        solution,
+        projects,
+        program,
+        dotnet_summary
     ):
 
         prompt = f"""
-        You are a Staff Software Engineer.
+        You are a Staff Software Engineer specializing in ASP.NET Core applications.
 
-        Analyze this repository.
+        Analyze the following .NET repository.
 
-        Repository Metadata:
-        {scan_result}
+            Repository Metadata:
+            {scan_result}
 
-        README:
-        {readme_content}
+            README Summary:
+            {readme}
 
-        Source Code Samples:
-        {code_samples}
+            Projects:
+            {solution}
 
-        Generate:
+            NuGet & Frameworks:
+            {projects}
+
+            Startup Configuration:
+            {program}
+
+            Detected Components:
+            {dotnet_summary}
+
+        Generate a detailed report containing:
 
         1. Project Purpose
-        2. Tech Stack
+        2. Tech Stack (.NET version, NuGet packages, database, messaging, etc.)
         3. High-Level Architecture
-        4. Main Components
-        5. Design Patterns Used
-        6. Potential Challenges
+        4. Project Layers (API, Application, Domain, Infrastructure, Tests)
+        5. Dependency Injection setup
+        6. Main Components (Controllers, Services, Repositories, DbContext)
+        7. Design Patterns used (Clean Architecture, Repository, CQRS, Dependency Injection, etc.)
+        8. External Integrations (Redis, RabbitMQ, Azure, SQL Server, etc. if detected)
+        9. Potential Challenges
         """
 
         response = client.chat.completions.create(
