@@ -28,57 +28,75 @@ class ReviewAggregator:
             )
 
         prompt = f"""
-            You are a Principal Engineering Manager.
+            You are a Principal .NET Engineering Manager.
 
-            You are given AI code reviews for multiple files.
+            You are reviewing a Pull Request.
 
-            Reviews:
+            Below are AI reviews generated for each changed file.
 
             {all_reviews}
 
-            Generate the report in EXACTLY this format.
+            Generate a concise GitHub PR review.
 
-            # Executive Summary
+            Maximum 350 words.
 
-            Summarize the PR in 2-3 lines.
+            Output EXACTLY in this format.
 
-            # Code Review Findings
+            # 🤖 AI Code Review
 
-            List all issues grouped by severity.
+            ## Overall Decision
 
-            ## High
+            Choose one:
+            - ✅ Approve
+            - 🟡 Approve with Minor Changes
+            - ❌ Request Changes
 
-            ...
+            ---
 
-            ## Medium
+            ## Summary
 
-            ...
+            - Files Reviewed:
+            - High:
+            - Medium:
+            - Low:
 
-            ## Low
+            ---
 
-            ...
+            ## Must Fix
 
-            # Final Recommendation
+            List ONLY High and Medium issues.
 
-            One of:
+            For each issue:
 
-            - Approve
-            - Approve with minor changes
-            - Request Changes
+            ### filename
 
-            IMPORTANT:
+            Issue:
+            Why:
+            Recommendation:
 
-            Do NOT invent issues.
+            Maximum 5 issues.
 
-            Do NOT invent files.
+            ---
 
-            Only summarize what appears in the reviews.
+            ## Improvements
 
-            If every review says "No significant issues found"
+            Maximum 5 bullet points.
 
-            then simply output
+            ---
 
-            "No significant issues found."
+            ## Positive Findings
+
+            Maximum 5 bullet points.
+
+            ---
+
+            Keep the review concise.
+
+            Do NOT include merge conflict analysis.
+
+            Do NOT repeat issues.
+
+            Do NOT write long explanations.
             """
 
         response = self.client.chat.completions.create(

@@ -20,28 +20,44 @@ class ConflictResolver:
     ):
 
         prompt = f"""
-You are a Senior .NET Engineer.
+        You are a Senior .NET Architect.
 
-A merge conflict occurred.
+        A Pull Request cannot be merged because of a merge conflict.
 
-Filename:
-{filename}
+        File:
 
-Current Branch Code:
-{current_code}
+        {filename}
 
-Incoming Branch Code:
-{incoming_code}
+        ==========================
+        Current Branch
+        ==========================
 
-Your job:
+        {current_code}
 
-1. Explain why the conflict occurred.
-2. Identify risks.
-3. Generate the best merged code.
-4. Explain your decision.
+        ==========================
+        Incoming Branch
+        ==========================
 
-Return Markdown.
-"""
+        {incoming_code}
+
+        Tasks
+
+        1. Explain why this conflict happened.
+
+        2. Explain which code should be kept.
+
+        3. Generate the merged code.
+
+        4. Mention any risks.
+
+        Respond in GitHub Markdown.
+
+        Keep the response under 250 words.
+
+        Do not explain Git.
+
+        Focus only on this file.
+        """
 
         response = self.client.chat.completions.create(
             model="llama-3.3-70b-versatile",

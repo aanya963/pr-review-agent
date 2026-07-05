@@ -35,11 +35,30 @@ async def github_webhook(request: Request):
     )
 
     # print(result["final_report"])
-    comment_service.post_comment(
+    # comment_service.post_review(
+    #     owner,
+    #     repo,
+    #     pr_number,
+    #     result["final_report"]
+    # )
+    # Post code review
+
+    comment_service.post_review(
         owner,
         repo,
         pr_number,
         result["final_report"]
     )
+
+    # Post merge conflict only if needed
+
+    if result["has_conflict"]:
+
+        comment_service.post_conflict_review(
+            owner,
+            repo,
+            pr_number,
+            result["conflict_report"]
+        )
 
     return {"status": "completed"}

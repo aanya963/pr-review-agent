@@ -144,15 +144,56 @@ def conflict_node(state):
 
     print("Running Conflict Agent...")
 
-    report = conflict_agent.analyze(
-        "Unknown.cs",
-        "Current branch code unavailable",
-        "Incoming branch code unavailable"
+    pr = github_tool.get_pull_request_object(
+        state["owner"],
+        state["repo"],
+        state["pr_number"]
     )
 
-    state["conflict_report"] = report
+    base_branch = pr.base.ref
+    feature_branch = pr.head.ref
+
+    reports = []
+
+    for file in state["files"]:
+
+        filename = file["filename"]
+
+        try:
+
+            current_code = github_tool.get_file_content(
+                state["owner"],
+                state["repo"],
+                filename,
+                base_branch
+            )
+
+            incoming_code = github_tool.get_file_content(
+                state["owner"],
+                state["repo"],
+                filename,
+                feature_branch
+            )
+
+            if current_code == incoming_code:
+                continue
+
+            report = conflict_agent.analyze(
+                filename,
+                current_code,
+                incoming_code
+            )
+
+            reports.append(report)
+
+        except Exception as e:
+
+            print(f"Skipping {filename}: {e}")
+
+    state["conflict_report"] = "\n\n---\n\n".join(reports)
 
     return state
+
 
 # For each file
 #       ↓

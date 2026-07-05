@@ -6,20 +6,43 @@ class GitHubCommentService:
     def __init__(self):
         self.github_tool = GitHubTool()
 
-    def post_comment(
+    def post_review(
         self,
         owner,
         repo,
         pr_number,
-        comment
+        body,
+        event="COMMENT"
     ):
 
         repository = self.github_tool.github.get_repo(
             f"{owner}/{repo}"
         )
 
-        issue = repository.get_issue(pr_number)
+        pr = repository.get_pull(pr_number)
 
-        issue.create_comment(comment)
+        pr.create_review(
+            body=body,
+            event=event
+        )
 
-        print("✅ Comment posted to GitHub.")
+        print("✅ GitHub Review Posted")
+
+
+    def post_conflict_review(
+        self,
+        owner,
+        repo,
+        pr_number,
+        report
+    ):
+
+        repository = self.github_tool.github.get_repo(
+            f"{owner}/{repo}"
+        )
+
+        pr = repository.get_pull(pr_number)
+
+        pr.create_issue_comment(report)
+
+        print("✅ Conflict Review Posted")
