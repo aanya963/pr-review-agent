@@ -405,24 +405,16 @@ Comments Posted Back to GitHub
 - Reduced repository analysis latency using intelligent caching.
 
 ---
-
 # Screenshots
 
-Architecture
+## Architecture
+![Architecture](https://github.com/user-attachments/assets/635bac89-98aa-41fa-a633-2b14d3faf05a)
 
-![Architecture](<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/635bac89-98aa-41fa-a633-2b14d3faf05a" />
-)
+## Workflow
+![Workflow](https://github.com/user-attachments/assets/eb26fa98-bf73-4105-a13e-11f2e1f458d6)
 
-Workflow
-![Workflow](<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/eb26fa98-bf73-4105-a13e-11f2e1f458d6" />
-)
+## GitHub PR Review
+![PR Review](https://github.com/user-attachments/assets/c15d8f02-22ab-48fb-a696-9846df77674d)
 
-GitHub PR Review
-
-![PR Review](<img width="656" height="749" alt="image" src="https://github.com/user-attachments/assets/c15d8f02-22ab-48fb-a696-9846df77674d" />
-)
-
-Merge Conflict Review
-
-![Merge Conflict](<img width="1512" height="1600" alt="image" src="https://github.com/user-attachments/assets/bf494dcf-f3f4-4977-989d-2b65727477fb" />
-)
+## Merge Conflict Review
+![Merge Conflict](https://github.com/user-attachments/assets/bf494dcf-f3f4-4977-989d-2b65727477fb)
