@@ -16,7 +16,8 @@ if os.getenv("PR_NUMBER"):
 else:
 
     # Local Development
-    pr_url = "https://github.com/aanya963/ai-log-processing-system/pull/3"
+    # pr_url = "https://github.com/aanya963/ai-log-processing-system/pull/3"
+    pr_url = "https://github.com/aanya963/ai-log-processing-system/pull/5"
 
     owner, repo, pr_number = parse_pr_url(pr_url)
 
