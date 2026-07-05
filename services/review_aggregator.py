@@ -28,23 +28,58 @@ class ReviewAggregator:
             )
 
         prompt = f"""
-            You are a Principal Software Engineer.
+            You are a Principal Engineering Manager.
 
-            Below are code review findings for individual files.
-
-            Create ONE concise PR review.
-
-            Include:
-
-            1. Executive Summary
-            2. Top Issues
-            3. Risk Level (Low/Medium/High)
-            4. Recommendation
+            You are given AI code reviews for multiple files.
 
             Reviews:
 
             {all_reviews}
-        """
+
+            Generate the report in EXACTLY this format.
+
+            # Executive Summary
+
+            Summarize the PR in 2-3 lines.
+
+            # Code Review Findings
+
+            List all issues grouped by severity.
+
+            ## High
+
+            ...
+
+            ## Medium
+
+            ...
+
+            ## Low
+
+            ...
+
+            # Final Recommendation
+
+            One of:
+
+            - Approve
+            - Approve with minor changes
+            - Request Changes
+
+            IMPORTANT:
+
+            Do NOT invent issues.
+
+            Do NOT invent files.
+
+            Only summarize what appears in the reviews.
+
+            If every review says "No significant issues found"
+
+            then simply output
+
+            "No significant issues found."
+            """
 
         response = self.client.chat.completions.create(
             model="llama-3.3-70b-versatile",

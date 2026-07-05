@@ -12,8 +12,12 @@ class GitHubTool:
             os.getenv("GITHUB_TOKEN")
         )
 
-    def get_pull_request(self, owner, repo, pr_number):
-
+    def get_pr_details(
+        self,
+        owner,
+        repo,
+        pr_number
+    ):
         repository = self.github.get_repo(
             f"{owner}/{repo}"
         )
@@ -52,3 +56,17 @@ class GitHubTool:
             })
 
         return files
+    
+
+    def get_pull_request_object(
+        self,
+        owner,
+        repo,
+        pr_number
+    ):
+
+        repository = self.github.get_repo(
+            f"{owner}/{repo}"
+        )
+
+        return repository.get_pull(pr_number)

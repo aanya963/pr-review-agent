@@ -2,11 +2,15 @@ from typing import TypedDict
 from services.cache_service import CacheService
 from langgraph.graph import StateGraph, START, END
 from services.cache_service import CacheService
+# from services.github_commenter import GitHubCommenter
 from tools.github_tool import GitHubTool
 from services.pr_reviewer import PRReviewer
 from services.review_aggregator import ReviewAggregator
 from agents.repository_agent import RepositoryAgent
+from agents.conflict_agent import ConflictAgent
+from utils.report_writer import ReportWriter
 
+conflict_agent = ConflictAgent()
 aggregator = ReviewAggregator()
 repo_agent = RepositoryAgent()
 github_tool = GitHubTool()
@@ -27,6 +31,9 @@ class PRReviewState(TypedDict):
     reviews: list
 
     final_report: str
+
+    has_conflict: bool
+    conflict_report: str
 
 # A node is simply a function.
 #input : state, output : updated state
@@ -108,6 +115,45 @@ def fetch_pr_node(state):
 
     return state
 
+def check_conflict_node(state):
+
+    pr = github_tool.get_pull_request_object(
+        state["owner"],
+        state["repo"],
+        state["pr_number"]
+    )
+
+    if pr.merged:
+        print("PR already merged.")
+        state["has_conflict"] = False
+
+    elif pr.mergeable is False:
+        print("Merge conflict detected.")
+        state["has_conflict"] = True
+
+    else:
+        print("No merge conflict.")
+        state["has_conflict"] = False
+
+    return state
+
+def conflict_node(state):
+
+    if not state["has_conflict"]:
+        return state
+
+    print("Running Conflict Agent...")
+
+    report = conflict_agent.analyze(
+        "Unknown.cs",
+        "Current branch code unavailable",
+        "Incoming branch code unavailable"
+    )
+
+    state["conflict_report"] = report
+
+    return state
+
 # For each file
 #       ↓
 # Call LLM
@@ -119,6 +165,18 @@ def review_files_node(state):
 
     for file in state["files"]:
 
+        if not file["patch"]:
+            continue
+
+        if file["filename"].endswith(".lock"):
+            continue
+
+        if "package-lock" in file["filename"]:
+            continue
+
+        if "packages.lock.json" in file["filename"]:
+            continue
+
         print(f"Reviewing {file['filename']}")
 
         review = reviewer.review_file(
@@ -126,6 +184,11 @@ def review_files_node(state):
             file["patch"],
             state["repo_summary"]
         )
+        
+        print("=" * 80)
+        print(file["filename"])
+        print(review)
+        print("=" * 80)
 
         reviews.append({
             "file": file["filename"],
@@ -138,11 +201,31 @@ def review_files_node(state):
 
 def aggregate_node(state):
 
-    report = aggregator.aggregate_reviews(
+    review_report = aggregator.aggregate_reviews(
         state["reviews"]
     )
 
-    state["final_report"] = report
+    final_report = ""
+
+    final_report += "# AI PR REVIEW REPORT\n\n"
+
+    final_report += "## CODE REVIEW\n\n"
+
+    final_report += review_report
+
+    final_report += "\n\n"
+
+    final_report += "## MERGE CONFLICT ANALYSIS\n\n"
+
+    if state["has_conflict"]:
+
+        final_report += state["conflict_report"]
+
+    else:
+
+        final_report += "✅ No merge conflicts detected."
+
+    state["final_report"] = final_report
 
     return state
 
@@ -150,6 +233,7 @@ def aggregate_node(state):
 graph = StateGraph(PRReviewState)
 
 # How LangGraph Knows Order?
+
 
 graph.add_node(
     "repository_analysis",
@@ -164,6 +248,16 @@ graph.add_node(
 graph.add_node(
     "review_files",
     review_files_node
+)
+
+graph.add_node(
+    "check_conflict",
+    check_conflict_node
+)
+
+graph.add_node(
+    "conflict",
+    conflict_node
 )
 
 graph.add_node(
@@ -183,11 +277,21 @@ graph.add_edge(
 
 graph.add_edge(
     "fetch_pr",
+    "check_conflict"
+)
+
+graph.add_edge(
+    "check_conflict",
     "review_files"
 )
 
 graph.add_edge(
     "review_files",
+    "conflict"
+)
+
+graph.add_edge(
+    "conflict",
     "aggregate"
 )
 
