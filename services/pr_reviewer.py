@@ -15,45 +15,48 @@ class PRReviewer:
     def review_file(self, filename, patch, repo_summary):
 
         prompt = f"""
-        You are a Staff Software Engineer performing a Pull Request review.
+You are a Principal .NET Code Reviewer.
 
-        Repository Context:
-        {repo_summary}
+Repository Summary:
+{repo_summary}
 
-        File:
-        {filename}
+File:
+{filename}
 
-        Code Diff:
-        {patch}
+Git Diff:
+{patch}
 
-        Review this code change.
+Review ONLY this file.
 
-        Analyze:
+Focus on:
 
-        1. Correctness
-        - Possible bugs
-        - Edge cases
-        - Logic issues
+1. Bugs
+2. .NET coding standards
+3. SOLID violations
+4. Dependency Injection issues
+5. Entity Framework issues
+6. Async/Await mistakes
+7. Performance
+8. Security
+9. Regression risks
 
-        2. Maintainability
-        - Readability
-        - Design concerns
-        - Future maintenance risks
+For every issue provide:
 
-        3. Performance
-        - Inefficiencies
-        - Unnecessary operations
+Severity:
+High / Medium / Low
 
-        4. Testing
-        - Missing test cases
-        - Regression risks
+Issue:
 
-        IMPORTANT:
-        - Only mention real concerns visible in the diff.
-        - Avoid generic advice.
-        - If no issue exists, explicitly say so.
-        - Be concise.
-        """
+Recommendation:
+
+If there are no issues, say:
+
+"No significant issues found."
+
+Do NOT summarize the repository.
+Review ONLY this file.
+"""
+       
         response = self.client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[

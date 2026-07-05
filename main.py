@@ -1,14 +1,23 @@
-from graphs.pr_review_graph import app 
-# import LangGraph workflow, URL parser
+import os
+import time
+
+from graphs.pr_review_graph import app
 from utils.url_parser import parse_pr_url
 
-pr_url = "https://github.com/dotnet/project-system/pull/9612"
+start = time.time()
 
-#extract the owner, repo, pr_number
-owner, repo, pr_number = parse_pr_url(pr_url)
-# This starts the entire LangGraph workflow.
-# it triggers a LangGraph workflow.
-# the workflow orchestrates repository analysis, PR file retrieval, AI-powered review generation, and final review aggregation.
+# Check if running inside GitHub Actions
+if os.getenv("PR_NUMBER"):
+    owner = os.getenv("OWNER")
+    repo = os.getenv("REPO")
+    pr_number = int(os.getenv("PR_NUMBER"))
+
+else:
+    # Local Development
+    pr_url = "https://github.com/EduardoPires/EquinoxProject/pull/214"
+
+    owner, repo, pr_number = parse_pr_url(pr_url)
+
 result = app.invoke(
     {
         "owner": owner,
@@ -16,6 +25,8 @@ result = app.invoke(
         "pr_number": pr_number,
         "force_refresh": False,
         "repo_summary": "",
+        "has_conflict": False,
+        "conflict_report": "",
         "files": [],
         "reviews": [],
         "final_report": ""
@@ -24,5 +35,7 @@ result = app.invoke(
 
 print("\n")
 print("=" * 80)
-
 print(result["final_report"])
+print("=" * 80)
+
+print(f"\nCompleted in {time.time()-start:.2f} seconds")
